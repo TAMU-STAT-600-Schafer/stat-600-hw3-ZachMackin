@@ -56,7 +56,7 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
- 
+  
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
   
   
@@ -67,4 +67,11 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   # error_test - (numIter + 1) length vector of testing error % at each iteration (+ starting value)
   # objective - (numIter + 1) length vector of objective values of the function that we are minimizing at each iteration (+ starting value)
   return(list(beta = beta, error_train = error_train, error_test = error_test, objective =  objective))
+}
+
+#Function that takes in a nxp matrix X with the data points and a pxk matrix Beta
+class_probabilities <- function(X, beta){
+  exp_scores = exp(X %*% beta)
+  probabilities = exp_scores/rowSums(exp_scores)
+  return (probabilities)
 }
