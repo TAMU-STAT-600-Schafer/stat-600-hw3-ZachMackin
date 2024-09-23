@@ -15,3 +15,8 @@ beta <- matrix(rnorm(p * K), nrow = p, ncol = K)
 probabilities = class_probabilities(X, beta)
 #should all be 1s
 rowSums(probabilities)
+
+#constructing a test for my objective function 
+Y <- sample(1:K, n, replace=TRUE)
+lambda <- 0.1
+objective_fx(X, Y, beta, lambda, probabilities)
