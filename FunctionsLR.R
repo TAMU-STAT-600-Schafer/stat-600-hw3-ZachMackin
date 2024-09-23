@@ -45,7 +45,7 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   }
   # Check whether beta_init is NULL. If NULL, initialize beta with p x K matrix of zeroes. If not NULL, check for compatibility of dimensions with what has been already supplied.
   if (is.null(beta_init)){
-    beta_init = matrix(0,length(Y), length(X[[1]]))
+    beta_init <- matrix(0,length(Y), length(X[[1]]))
   }else{
     if(dim(beta_init)[2] != length(X[[1]]) || dim(beta_init)[1] != length(Y)){
       stop(paste("beta_init should be p x K it is instead", dim(beta_init)))
@@ -53,7 +53,7 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   }
   ## Calculate corresponding pk, objective value f(beta_init), training error and testing error given the starting point beta_init
   ##########################################################################
-  
+  initial_probabilities
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
   
@@ -71,7 +71,26 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
 
 #Function that takes in a nxp matrix X with the data points and a pxk matrix Beta
 class_probabilities <- function(X, beta){
-  exp_scores = exp(X %*% beta)
-  probabilities = exp_scores/rowSums(exp_scores)
+  exp_scores <- exp(X %*% beta)
+  probabilities <- exp_scores/rowSums(exp_scores)
   return (probabilities)
+}
+#function that takes in X, Y, Beta, and lambda as constructed above and addtionally
+#the class probabilities and returns the objective function 
+objective_fx <- function(X, Y, beta, lambda, class_probabilities){
+  n <- nrow(X)
+  k <- nrow(beta)
+  p <- ncol(X)
+  first_term <- 0
+  for (i in 1:n){
+    for(class in 1:k){
+      if(Y[i] == class){
+        first_term = first_term + log(class_probabilities[p, k])   
+      }
+      
+    }
+  }
+  regularization_term = (lambda/2) * sum(beta^2)
+  function_value = -first_term + regularization_term
+  return (function_value)
 }
