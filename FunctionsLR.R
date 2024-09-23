@@ -20,19 +20,37 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   ## Check the supplied parameters as described. You can assume that X, Xt are matrices; y, yt are vectors; and numIter, eta, lambda are scalars. You can assume that beta_init is either NULL (default) or a matrix.
   ###################################
   # Check that the first column of X and Xt are 1s, if not - display appropriate message and stop execution.
-  
+  if(!all(X[ , 1] == 1) || !all(Xt[ , 1] == 1)){
+    stop(print("First column of X and/or Xt are not all 1s"))
+  }
   # Check for compatibility of dimensions between X and Y
-  
+  if (dim(X)[1] != length(y)){
+    stop(print("the dimensions of X and Y are not compatible"))
+  }
   # Check for compatibility of dimensions between Xt and Yt
-  
+  if (dim(Xt)[1] != length(yt)){
+    stop(print("the dimensions of Xt and Yt are not compatible"))
+  }
   # Check for compatibility of dimensions between X and Xt
-  
+  if (dim(Xt)[2] != dim(X)[2]){
+    stop(print("the dimensions of Xt and X are not compatible"))  
+  }
   # Check eta is positive
-  
+  if(eta <= 0){
+    stop(print("eta must be positive"))  
+  }
   # Check lambda is non-negative
-  
+  if (lambda < 0){
+    stop(print("lambda must be non-negative"))
+  }
   # Check whether beta_init is NULL. If NULL, initialize beta with p x K matrix of zeroes. If not NULL, check for compatibility of dimensions with what has been already supplied.
-  
+  if (is.null(beta_init)){
+    beta_init = matrix(0,length(Y), length(X[[1]]))
+  }else{
+    if(dim(beta_init)[2] != length(X[[1]]) || dim(beta_init)[1] != length(Y)){
+      stop(paste("beta_init should be p x K it is instead", dim(beta_init)))
+    }
+  }
   ## Calculate corresponding pk, objective value f(beta_init), training error and testing error given the starting point beta_init
   ##########################################################################
   
