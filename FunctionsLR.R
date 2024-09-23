@@ -51,15 +51,24 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
       stop(paste("beta_init should be p x K it is instead", dim(beta_init)))
     }
   }
+  
+  ##Vectors to store training error, test error, and objective values
+  error_train <- numeric(numIter + 1)
+  error_test <- numeric(numIter + 1)
+  objective <- numeric(numIter + 1)
   ## Calculate corresponding pk, objective value f(beta_init), training error and testing error given the starting point beta_init
   ##########################################################################
-  initial_probabilities
+  initial_probabilities <- class_probabilities(X, beta_init)
+  objective[1] <- objective_fx(X, y, beta_init, lambda, initial_probabilities)
+  test_probs <- class_probabilities(Xt, beta_init)
+  error_train[1] <- mean(classify(initial_probabilities) != y) * 100
+  error_test[1] <- mean(classify(test_probs) != yt) * 100
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
-  
+  for (i in 2:num_iter+1){
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
   
-  
+  }
   ## Return output
   ##########################################################################
   # beta - p x K matrix of estimated beta values after numIter iterations
@@ -93,4 +102,10 @@ objective_fx <- function(X, Y, beta, lambda, class_probabilities){
   regularization_term = (lambda/2) * sum(beta^2)
   function_value = -first_term + regularization_term
   return (function_value)
+}
+
+#classifies each point given a the probabilities
+classify <- function(probs){
+  #potentially use max.col if that works cuz its faster 
+  return(apply(probs, 1, which.max))
 }
