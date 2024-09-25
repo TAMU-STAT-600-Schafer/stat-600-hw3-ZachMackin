@@ -67,12 +67,10 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   error_test[1] <- mean(classify(test_probs) != yt) * 100
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
-  for (i in 2:numIter+1){
+  for (i in 2:(numIter+1)){
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
     #just need update_fx to do what we want 
-    print(beta_init)
     beta_init <- update_fx(X, Y, beta_init, lambda, eta, initial_probabilities)
-    print(beta_init)
     initial_probabilities <- class_probabilities(X, beta_init)
     objective[i] <- objective_fx(X, y, beta_init, lambda, initial_probabilities)
     test_probs <- class_probabilities(Xt, beta_init)
