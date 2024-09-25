@@ -43,12 +43,14 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   if (lambda < 0){
     stop(print("lambda must be non-negative"))
   }
-  # Check whether beta_init is NULL. If NULL, initialize beta with p x K matrix of zeroes. If not NULL, check for compatibility of dimensions with what has been already supplied.
-  if (is.null(beta_init)){
-    beta_init <- matrix(0,length(Y), length(X[[1]]))
-  }else{
-    if(dim(beta_init)[2] != length(X[[1]]) || dim(beta_init)[1] != length(Y)){
-      stop(paste("beta_init should be p x K it is instead", dim(beta_init)))
+  # Check whether beta_init is NULL. If NULL, initialize beta with p x K matrix of zeroes.
+  if (is.null(beta_init)) {
+    # Initialize beta with zeroes: p x K (number of features x number of classes)
+    beta_init <- matrix(0, ncol(X), length(unique(y)))
+  } else {
+    # Check if the dimensions of beta_init are compatible: it should be p x K
+    if (dim(beta_init)[1] != ncol(X) || dim(beta_init)[2] != length(unique(y))) {
+      stop(paste("beta_init should be p x K but it is instead", dim(beta_init)[1], "x", dim(beta_init)[2]))
     }
   }
   
@@ -65,10 +67,12 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   error_test[1] <- mean(classify(test_probs) != yt) * 100
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
-  for (i in 2:num_iter+1){
+  for (i in 2:numIter+1){
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
     #just need update_fx to do what we want 
+    print(beta_init)
     beta_init <- update_fx(X, Y, beta_init, lambda, eta, initial_probabilities)
+    print(beta_init)
     initial_probabilities <- class_probabilities(X, beta_init)
     objective[i] <- objective_fx(X, y, beta_init, lambda, initial_probabilities)
     test_probs <- class_probabilities(Xt, beta_init)
@@ -119,17 +123,17 @@ classify <- function(probs){
 
 #takes in probabilites for a class K and computes the diag 
 compute_W_k <- function(P_k){
-  W_k <- P_k(1-P_k)    
+  W_k <- P_k * (1-P_k)    
   return(W_k)
 }
 update_B_k <- function(X, P_k, Y, k, beta_k, lambda, eta){
-  n <- numrow(X)
-  p <- numcol(X)
+  n <- nrow(X)
+  p <- ncol(X)
   W_k <- compute_W_k(P_k)
   
   X_W_k <- X * W_k
   #can I speed up this line by using crossprod? 
-  X_T_W_k <- X %*% X_W_k
+  X_T_W_k <- t(X) %*% X_W_k
   
   #second term calculation 
   second_term <- t(X) %*% (P_k - (Y==k))
@@ -140,6 +144,7 @@ update_B_k <- function(X, P_k, Y, k, beta_k, lambda, eta){
 update_fx <- function(X, Y, beta, lambda, eta, probabilities){
   K <- ncol(beta)
   for (i in 1:K){
-    beta[ , i] <- update_B_k(X, probabilities[ , i], Y, i, lambda, eta)
+    beta[ , i] <- update_B_k(X, probabilities[ , i], Y, i, beta[, i], lambda, eta)
   }
+  return(beta)
 }
