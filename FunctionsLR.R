@@ -67,8 +67,15 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   ##########################################################################
   for (i in 2:num_iter+1){
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
-  
+    #just need update_fx to do what we want 
+    beta_init <- update_fx(X, Y, beta_init, lambda, eta, initial_probabilities)
+    initial_probabilities <- class_probabilities(X, beta_init)
+    objective[i] <- objective_fx(X, y, beta_init, lambda, initial_probabilities)
+    test_probs <- class_probabilities(Xt, beta_init)
+    error_train[i] <- mean(classify(initial_probabilities) != y) * 100
+    error_test[i] <- mean(classify(test_probs) != yt) * 100
   }
+  beta <- beta_init
   ## Return output
   ##########################################################################
   # beta - p x K matrix of estimated beta values after numIter iterations
@@ -108,4 +115,31 @@ objective_fx <- function(X, Y, beta, lambda, class_probabilities){
 classify <- function(probs){
   #potentially use max.col if that works cuz its faster 
   return(apply(probs, 1, which.max))
+}
+
+#takes in probabilites for a class K and computes the diag 
+compute_W_k <- function(P_k){
+  W_k <- P_k(1-P_k)    
+  return(W_k)
+}
+update_B_k <- function(X, P_k, Y, k, beta_k, lambda, eta){
+  n <- numrow(X)
+  p <- numcol(X)
+  W_k <- compute_W_k(P_k)
+  
+  X_W_k <- X * W_k
+  #can I speed up this line by using crossprod? 
+  X_T_W_k <- X %*% X_W_k
+  
+  #second term calculation 
+  second_term <- t(X) %*% (P_k - (Y==k))
+  
+  updated_beta_k <- beta_k - (eta * solve(X_T_W_k + (lambda * diag(p))) %*% (second_term + (lambda * beta_k)))
+  return (updated_beta_k)  
+}
+update_fx <- function(X, Y, beta, lambda, eta, probabilities){
+  K <- ncol(beta)
+  for (i in 1:K){
+    beta[ , i] <- update_B_k(X, probabilities[ , i], Y, i, lambda, eta)
+  }
 }
