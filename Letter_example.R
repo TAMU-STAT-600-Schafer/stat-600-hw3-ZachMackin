@@ -31,8 +31,10 @@ out_pointfive <- LRMultiClass(X, Y, Xt, Yt, lambda=0.5)
 plot(out_pointfive$objective, type = 'o')
 plot(out_pointfive$error_train, type = 'o')
 plot(out_pointfive$error_test, type = 'o')
+
 # [ToDo] Use microbenchmark to time your code with lambda=1 and 50 iterations. To save time, only apply microbenchmark 5 times.
-
+library(microbenchmark)
+benchmark_obj <- microbenchmark(LRMultiClass(X, Y, Xt, Yt), times = 5)
 # [ToDo] Report the median time of your code from microbenchmark above in the comments below
-
-# Median time:  (in sec)
+paste("My median runtime is:", summary(benchmark_obj)$median)
+# Median time: 2.99 (in sec)

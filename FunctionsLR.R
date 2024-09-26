@@ -102,8 +102,8 @@ objective_fx <- function(X, Y, beta, lambda, class_probabilities){
   first_term <- 0
   for (i in 1:n){
     for(class in 1:k){
-      if(Y[i] == class){
-        first_term = first_term + log(class_probabilities[p, k])   
+      if(Y[i] == (class-1)){  
+        first_term = first_term + log(class_probabilities[i, class])   
       }
       
     }
@@ -116,7 +116,7 @@ objective_fx <- function(X, Y, beta, lambda, class_probabilities){
 #classifies each point given a the probabilities
 classify <- function(probs){
   #potentially use max.col if that works cuz its faster 
-  return(apply(probs, 1, which.max))
+  return(apply(probs, 1, which.max) - 1) 
 }
 
 #takes in probabilites for a class K and computes the diag 
@@ -134,7 +134,7 @@ update_B_k <- function(X, P_k, Y, k, beta_k, lambda, eta){
   X_T_W_k <- t(X) %*% X_W_k
   
   #second term calculation 
-  second_term <- t(X) %*% (P_k - (Y==k))
+  second_term <- t(X) %*% (P_k - (Y==(k-1)))
   
   updated_beta_k <- beta_k - (eta * solve(X_T_W_k + (lambda * diag(p))) %*% (second_term + (lambda * beta_k)))
   return (updated_beta_k)  
