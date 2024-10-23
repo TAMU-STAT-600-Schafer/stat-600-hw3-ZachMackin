@@ -70,7 +70,7 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   for (i in 2:(numIter+1)){
   # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
     #just need update_fx to do what we want 
-    beta_init <- update_fx(X, Y, beta_init, lambda, eta, initial_probabilities)
+    beta_init <- update_fx(X, y, beta_init, lambda, eta, initial_probabilities)
     initial_probabilities <- class_probabilities(X, beta_init)
     objective[i] <- objective_fx(X, y, beta_init, lambda, initial_probabilities)
     test_probs <- class_probabilities(Xt, beta_init)
@@ -98,7 +98,6 @@ class_probabilities <- function(X, beta){
 objective_fx <- function(X, Y, beta, lambda, class_probabilities){
   n <- nrow(X)
   k <- nrow(beta)
-  p <- ncol(X)
   first_term <- 0
   for (i in 1:n){
     for(class in 1:k){
